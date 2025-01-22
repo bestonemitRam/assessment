@@ -243,19 +243,7 @@ extension DateTimeExtension on DateTime? {
   }
 }
 
-/// Color scheme extensions
 
-extension ColorExtension on String {
-  toColor() {
-    var hexColor = this.replaceAll("#", "");
-    if (hexColor.length == 6) {
-      hexColor = "FF$hexColor";
-    }
-    if (hexColor.length == 8) {
-      return Color(int.parse("0x$hexColor"));
-    }
-  }
-}
 
 extension ColorExt on ColorScheme {
   Color get blackColor =>
@@ -297,14 +285,7 @@ extension ColorExt on ColorScheme {
 
   Color get primarycolor => Color(0xff228B22);
 
-  // Color get reviewColor =>
-  //     brightness == Brightness.dark ? Colors.green : const Color(0xff006D60);
-  //
-  // Color get successColor =>
-  //     brightness == Brightness.light ? Colors.green : Colors.green;
-  //
-  // Color get chatTextColor =>
-  //     brightness == Brightness.light ? Colors.blue : Colors.lightBlue;
+ 
   Color get smallTextColor => brightness == Brightness.light
       ? const Color(0xFF6A6A6A)
       : const Color(0xFF6A6A6A);

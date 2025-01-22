@@ -1,21 +1,77 @@
+import 'package:assessment/core/database/database.dart';
+import 'package:assessment/data/LostItem.dart';
+import 'package:assessment/utils/extensions.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
-class LostAndFoundItem with ChangeNotifier 
-{
+class LostAndFoundItem with ChangeNotifier {
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController contactController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
+  final TextEditingController locationController = TextEditingController();
 
-    final List<XFile> _images = [];
-  final ImagePicker _picker = ImagePicker();
-  final TextEditingController _dateController = TextEditingController();
+  String _message = '';
+  String get message => _message;
+  Future<bool> storedatainDatabase(
+      BuildContext context, String date, List<String> imagePaths) async {
+    context.showLoader(show: true);
+    final newItem = LostItem(
+      name: nameController.text,
+      contactInfo: contactController.text,
+      itemDescription: descriptionController.text,
+      date: date,
+      location: locationController.text,
+      images: imagePaths,
+    );
 
-  void _pickImages() async {
-    final List<XFile>? pickedImages = await _picker.pickMultiImage();
-    if (pickedImages != null) {
-  
-        _images.addAll(pickedImages);
-    
+    try {
+      await DatabaseHelper.instance.insertItem(newItem);
+      await Future.delayed(const Duration(seconds: 1));
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Item added successfully!"),
+          backgroundColor: Colors.green,
+        ),
+      );
+
+      fetchItems();
+      nameController.clear();
+      contactController.clear();
+      descriptionController.clear();
+      locationController.clear();
+      context.showLoader(show: false);
+      return true;
+    } catch (e) {
+      print("kdsfgkjh  ${e}");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Failed to add lost item. Please try again."),
+          backgroundColor: Colors.red,
+        ),
+      );
+
+      return false;
     }
   }
 
+  List<LostItem> _items = [];
 
+  List<LostItem> get items => _items;
+
+  Future<void> fetchItems() async {
+    _items = await DatabaseHelper.instance.fetchItems();
+    notifyListeners();
+  }
+
+  Future<void> addItem(LostItem item) async {
+    await DatabaseHelper.instance.insertItem(item);
+    await fetchItems();
+  }
+
+  Future<void> deleteItem(int id) async {
+    await DatabaseHelper.instance.deleteItem(id);
+    await fetchItems();
+  }
 }

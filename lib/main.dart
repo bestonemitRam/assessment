@@ -10,12 +10,19 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:loader_overlay/loader_overlay.dart';
 import 'package:provider/provider.dart';
 
-void main() => runApp(LostAndFoundApp());
+import 'core/database/database.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await DatabaseHelper.instance.initDatabase();
+  runApp(LostAndFoundApp());
+}
 
 class LostAndFoundApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
+    return 
+    ScreenUtilInit(
         designSize: const Size(360, 690),
         minTextAdapt: true,
         splitScreenMode: true,
@@ -24,9 +31,7 @@ class LostAndFoundApp extends StatelessWidget {
             child: MultiProvider(
               providers: [
                 ChangeNotifierProvider(create: (_) => AuthProvider()),
-                     ChangeNotifierProvider(create: (_) => LostAndFoundItem()),
-             
-             
+                ChangeNotifierProvider(create: (_) => LostAndFoundItem()),
               ],
               child: MaterialApp.router(
                 routerConfig: MyRoutes.router,
@@ -39,12 +44,6 @@ class LostAndFoundApp extends StatelessWidget {
                 ),
                 themeMode: ThemeMode.light,
                 title: "Assessment App",
-                //   initialRoute: '/',
-                // routes: {
-                //   '/': (context) => HomeScreen(),
-                //   '/form': (context) => FormScreen(),
-                //   '/confirmation': (context) => ConfirmationScreen(),
-                // },
               ),
             )));
   }
