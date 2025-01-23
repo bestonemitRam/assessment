@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:adaptive_theme/adaptive_theme.dart';
 import 'package:assessment/core/routes/routes.dart';
 import 'package:assessment/logic/provider/lost_found_item_provider.dart';
+import 'package:assessment/logic/provider/theme_provider.dart';
+import 'package:assessment/utils/AppHelper.dart';
 import 'package:assessment/utils/extensions.dart';
 import 'package:assessment/widgets/elevated_button.dart';
 import 'package:flutter/material.dart';
@@ -12,39 +14,48 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatelessWidget {
-  
-
-  
-
   @override
   Widget build(BuildContext context) {
+    final status = Provider.of<LostAndFoundItem>(context, listen: false);
+    status.fetchItems();
+
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Text(
+        //    backgroundColor: Colors.white,
+
+        iconTheme: IconThemeData(
+          color: AppHelper.themelight
+              ? Colors.white
+              : Colors.black, // Set back button color
+        ),
+
+        title: Center(
+          child: Text(
             "Lost & Found App",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppHelper.themelight ? Colors.white : Colors.black),
           ),
-          actions: [
-         IconButton(
-            icon: Icon(
-              Theme.of(context).brightness == Brightness.dark
-                  ? Icons.light_mode
-                  : Icons.dark_mode,
-              color: Colors.black,
-            ),
-            onPressed: () {
-              // Toggle the theme mode
-              final themeNotifier =
-                  context.read<ValueNotifier<ThemeMode>>();
-              themeNotifier.value = themeNotifier.value == ThemeMode.dark
-                  ? ThemeMode.light
-                  : ThemeMode.dark;
-            },
-          ),
+        ),
+        actions: [
+          Consumer<DarkThemeProvider>(
+              builder: (context, darkThemeProvider, child) {
+            return IconButton(
+              icon: Icon(
+                Theme.of(context).brightness == Brightness.dark
+                    ? Icons.light_mode
+                    : Icons.dark_mode,
+                color: AppHelper.themelight ? Colors.white : Colors.black,
+              ),
+              onPressed: () {
+                // Toggle the theme mode
+                darkThemeProvider.darkThemessd(true);
+              },
+            );
+          })
         ],
-          
-          ),
+      ),
       floatingActionButton: SizedBox(
         child: Padding(
           padding: const EdgeInsets.all(10.0),
@@ -61,8 +72,7 @@ class HomeScreen extends StatelessWidget {
       body: Consumer<LostAndFoundItem>(
         builder: (context, lostAndFoundItem, child) {
           // Fetch items if the list is empty
-          if (lostAndFoundItem.items.isEmpty) {
-            lostAndFoundItem.fetchItems();
+          if (lostAndFoundItem.isLoaded) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -126,15 +136,17 @@ class HomeScreen extends StatelessWidget {
                                     children: [
                                       Text(
                                         "Name : ",
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
+                                        style: context.buttonTestStyle.copyWith(
+                                            color: AppHelper.themelight
+                                                ? Colors.white
+                                                : Colors.black),
                                       ),
                                       Text(
                                         item.name!,
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
+                                        style: context.buttonTestStyle.copyWith(
+                                            color: AppHelper.themelight
+                                                ? Colors.grey
+                                                : Colors.black),
                                       ),
                                     ],
                                   ),
@@ -143,46 +155,23 @@ class HomeScreen extends StatelessWidget {
                                       Text(
                                         "Contact Info : ",
                                         style: context.buttonTestStyle.copyWith(
-                                            color: context.appColor.greyColor),
+                                            color: AppHelper.themelight
+                                                ? Colors.white
+                                                : Colors.black),
                                       ),
-                                      Text(
-                                        //  productsC[index]['subTitle'].toString(),
+                                      Container(
+                                        width: 100,
+                                        child: Text(
+                                          //  productsC[index]['subTitle'].toString(),
 
-                                        item.contactInfo!,
-                                        style: context.buttonTestStyle.copyWith(
-                                            color: context.appColor.greyColor),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Descriptions : ",
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
-                                      ),
-                                      Text(
-                                        item.itemDescription!,
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
-                                      ),
-                                    ],
-                                  ),
-                                  Row(
-                                    children: [
-                                      Text(
-                                        "Location : ",
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
-                                      ),
-                                      Text(
-                                        item.location!,
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
+                                          item.contactInfo!,
+                                          maxLines: 20,
+                                          style: context.buttonTestStyle
+                                              .copyWith(
+                                                  color: AppHelper.themelight
+                                                      ? Colors.grey
+                                                      : Colors.black),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -190,15 +179,64 @@ class HomeScreen extends StatelessWidget {
                                     children: [
                                       Text(
                                         "Date : ",
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
+                                        style: context.buttonTestStyle.copyWith(
+                                            color: AppHelper.themelight
+                                                ? Colors.white
+                                                : Colors.black),
                                       ),
                                       Text(
                                         item.date!,
-                                        // productsC[index]['title'].toString(),
-                                        style:
-                                            context.buttonTestStyle.copyWith(),
+                                        style: context.buttonTestStyle.copyWith(
+                                            color: AppHelper.themelight
+                                                ? Colors.grey
+                                                : Colors.black),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Descriptions : ",
+                                        style: context.buttonTestStyle.copyWith(
+                                            color: AppHelper.themelight
+                                                ? Colors.white
+                                                : Colors.black),
+                                      ),
+                                      Container(
+                                        width: 120,
+                                        child: Text(
+                                          item.itemDescription!,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.buttonTestStyle
+                                              .copyWith(
+                                                  color: AppHelper.themelight
+                                                      ? Colors.grey
+                                                      : Colors.black),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Location : ",
+                                        style: context.buttonTestStyle.copyWith(
+                                            color: AppHelper.themelight
+                                                ? Colors.white
+                                                : Colors.black),
+                                      ),
+                                      Container(
+                                        width: 120,
+                                        child: Text(
+                                          item.location!,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: context.buttonTestStyle
+                                              .copyWith(
+                                                  color: AppHelper.themelight
+                                                      ? Colors.grey
+                                                      : Colors.black),
+                                        ),
                                       ),
                                     ],
                                   ),

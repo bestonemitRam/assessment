@@ -2,10 +2,13 @@ import 'dart:io';
 
 import 'package:assessment/logic/provider/auth_provider.dart';
 import 'package:assessment/logic/provider/lost_found_item_provider.dart';
+import 'package:assessment/main.dart';
+import 'package:assessment/utils/AppHelper.dart';
 import 'package:assessment/utils/extensions.dart';
 import 'package:assessment/widgets/custom_text_field.dart';
 import 'package:assessment/widgets/elevated_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:image_picker/image_picker.dart';
@@ -31,10 +34,13 @@ class _FormScreenState extends State<FormScreen> {
     }
   }
 
-  void _submitForm() {
-    if (_formKey.currentState!.validate()) {
-      // Navigate to Confirmation Screen
-      Navigator.pushNamed(context, '/confirmation');
+  Future<void> pickShopImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.camera);
+    if (pickedFile != null) {
+      setState(() {
+        _images.add(pickedFile);
+      });
     }
   }
 
@@ -43,10 +49,16 @@ class _FormScreenState extends State<FormScreen> {
     final provider = Provider.of<LostAndFoundItem>(context, listen: false);
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.white,
+          backgroundColor: Colors.transparent,
+          iconTheme: IconThemeData(
+            color: AppHelper.themelight ? Colors.white : Colors.black,
+          ),
           title: Text(
             "Report Lost/Found Item",
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+            style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: AppHelper.themelight ? Colors.white : Colors.black),
           )),
       body: Padding(
         padding: EdgeInsets.only(left: 20, right: 20, top: 50),
@@ -108,20 +120,53 @@ class _FormScreenState extends State<FormScreen> {
                   fillColor: context.appColor.greyColor100,
                 ),
                 Gap(10.h),
+                // CustomTextField(
+                //   controller: _dateController,
+                //   validator: (val) {
+                //     if (val!.isEmpty) {
+                //       return "Please enter description ";
+                //     }
+                //     return null;
+                //   },
+                //   maxLength: 64,
+                //   counterWidget: const Offstage(),
+                //   hintText: 'Select Date',
+                //   fillColor: context.appColor.greyColor100,
+                //   suffix: Icon(
+                //     Icons.calendar_today,
+                //   ),
+                //   onTap: () async {
+                //     FocusScope.of(context).requestFocus(FocusNode());
+                //     DateTime? date = await showDatePicker(
+                //       context: context,
+                //       initialDate: DateTime.now(),
+                //       firstDate: DateTime(2000),
+                //       lastDate: DateTime(2100),
+                //     );
+                //     if (date != null) {
+                //       _dateController.text = date.toString().split(' ')[0];
+                //     }
+                //   },
+                // ),
+
                 CustomTextField(
                   controller: _dateController,
                   validator: (val) {
                     if (val!.isEmpty) {
-                      return "Please enter description ";
+                      return "Please enter a date";
                     }
+                    // Add validation for valid date format if needed
                     return null;
                   },
                   maxLength: 64,
                   counterWidget: const Offstage(),
                   hintText: 'Select Date',
                   fillColor: context.appColor.greyColor100,
-                  suffix: Icon(Icons.calendar_today),
+                  suffix: Icon(Icons.calendar_today,
+                      color:
+                          AppHelper.themelight ? Colors.white : Colors.black),
                   onTap: () async {
+                    // No need to unfocus before showing the date picker in most cases
                     FocusScope.of(context).requestFocus(FocusNode());
                     DateTime? date = await showDatePicker(
                       context: context,
@@ -150,8 +195,96 @@ class _FormScreenState extends State<FormScreen> {
                 ),
                 SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _pickImages,
-                  child: Text("Upload Images"),
+                  style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(
+                          AppHelper.themelight ? Colors.white : Colors.black)),
+                  onPressed: () {
+                    showDialog(
+                        context: context,
+                        builder: (context) {
+                          return Dialog(
+                            child: Container(
+                              color: Colors.white,
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 10),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        color: AppHelper.themelight
+                                            ? Colors.white
+                                            : Colors.black,
+                                        child: InkWell(
+                                          onTap: () {
+                                            _pickImages();
+                                            Navigator.pop(context);
+                                          },
+                                          child: Icon(
+                                            Icons.file_present_sharp,
+                                            size: 50,
+                                            color: AppHelper.themelight
+                                                ? Colors.black
+                                                : Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 50,
+                                      ),
+                                      Container(
+                                        child: InkWell(
+                                          onTap: () {
+                                            pickShopImage();
+                                            Navigator.pop(context);
+                                          },
+                                          child: Icon(
+                                            Icons.camera,
+                                            size: 70,
+                                            color: AppHelper.themelight
+                                                ? Colors.black
+                                                : Colors.black,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 10,
+                                  ),
+                                  Container(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                        },
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                              vertical: 15),
+                                          child: Text(
+                                            "Close",
+                                            style:
+                                                TextStyle(color: Colors.white),
+                                          ),
+                                        )),
+                                  )
+                                ],
+                              ),
+                            ),
+                          );
+                        });
+                  },
+                  child: Text(
+                    "Upload Images",
+                    style: TextStyle(
+                        color:
+                            AppHelper.themelight ? Colors.black : Colors.white),
+                  ),
                 ),
                 SizedBox(height: 10),
                 _images.isNotEmpty
@@ -160,12 +293,19 @@ class _FormScreenState extends State<FormScreen> {
                         children: _images
                             .map((img) => Stack(
                                   children: [
-                                    Image.file(File(img.path), width: 100),
+                                    Container(
+                                        height: 100,
+                                        width: 100,
+                                        child: Image.file(File(img.path),
+                                            width: 100)),
                                     Positioned(
                                       right: 0,
                                       top: 0,
                                       child: IconButton(
-                                        icon: Icon(Icons.close),
+                                        icon: Icon(Icons.close,
+                                            color: AppHelper.themelight
+                                                ? Colors.white
+                                                : Colors.black),
                                         onPressed: () {
                                           setState(() {
                                             _images.remove(img);
@@ -207,4 +347,18 @@ class _FormScreenState extends State<FormScreen> {
       ),
     );
   }
+
+  // Widget openpoppup() {
+  //   return AlertDialog(
+  //     title: Text(
+  //      "efsfeff",
+
+  //     ),
+  //     actions: this.actions,
+  //     content: Text(
+  //       this.content,
+  //       style: Theme.of(context).textTheme.body1,
+  //     ),
+  //   );
+  // }
 }

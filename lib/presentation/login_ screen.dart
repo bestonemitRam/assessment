@@ -113,11 +113,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       if (_formKey.currentState?.validate() ?? false) {
                         final status = await Provider.of<AuthProvider>(context,
                                 listen: false)
-                            .login(
-                          context,
-                        );
+                            .login(context, email.text, password.text);
                         if (status) {
-                          context.push(MyRoutes.DASHBOARD);
+                          context.clearAndPush(routePath: MyRoutes.DASHBOARD);
                         }
                       }
                     }),

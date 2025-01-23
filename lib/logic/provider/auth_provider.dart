@@ -1,17 +1,20 @@
+import 'package:assessment/core/database/logindb.dart';
 import 'package:assessment/utils/extensions.dart';
 import 'package:flutter/material.dart';
 
 class AuthProvider with ChangeNotifier {
-  Future<bool> login(BuildContext context) async {
-    // Show loader
-
-    print("djkfhgkjdgh");
+  Future<bool> login(BuildContext context, String email, password) async {
     context.showLoader(show: true);
 
-    // Wait for 2 seconds
+    final user = {
+      'email': email,
+      'password': password,
+    };
+
+    await LoginDb.instance.insertUser(user);
+
     await Future.delayed(const Duration(seconds: 2));
 
-    // Show success message
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Login successfully!"),
@@ -19,10 +22,8 @@ class AuthProvider with ChangeNotifier {
       ),
     );
 
-    // Hide loader
     context.showLoader(show: false);
 
-    // Return true
     return true;
   }
 }

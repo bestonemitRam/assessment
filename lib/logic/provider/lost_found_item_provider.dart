@@ -60,8 +60,19 @@ class LostAndFoundItem with ChangeNotifier {
 
   List<LostItem> get items => _items;
 
+  bool isLoading = false;
+
+  bool get isLoaded => isLoading;
+
+  setLoading(value) {
+    isLoading = value;
+    notifyListeners();
+  }
+
   Future<void> fetchItems() async {
+    setLoading(true);
     _items = await DatabaseHelper.instance.fetchItems();
+    setLoading(false);
     notifyListeners();
   }
 
